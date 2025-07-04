@@ -24,6 +24,10 @@ end RegisterFile;
 architecture Behavioral of RegisterFile is
     type REGISTER_FILE_ARRAY is array(0 to 31) of STD_LOGIC_VECTOR(31 downto 0);
     signal REGISTER_FILE : REGISTER_FILE_ARRAY := (
+        0 => STD_LOGIC_VECTOR(to_unsigned(5, 32)),
+        1 => STD_LOGIC_VECTOR(to_unsigned(10, 32)),
+        2 => STD_LOGIC_VECTOR(to_unsigned(15, 32)),
+        3 => STD_LOGIC_VECTOR(to_unsigned(20, 32)),
         others => "00000000000000000000000000000000"
     );
 begin

@@ -25,11 +25,11 @@ architecture Behavioral of ALU is
 begin
     process(INPUT_A, INPUT_B, INPUT_SELECT) begin
         case(INPUT_SELECT) is
-            when "00000" =>
+            when "0000" =>
                 OUTPUT <= INPUT_A + INPUT_B;
-            when "00001" =>
+            when "0001" =>
                 OUTPUT <= INPUT_A - INPUT_B;
-            when "00010" =>
+            when "0010" =>
                 OUTPUT <= INPUT_A(15 downto 0) * INPUT_B(15 downto 0);
             when others =>
                 OUTPUT <= INPUT_A + INPUT_B;

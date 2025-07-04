@@ -5,19 +5,43 @@ use ieee.numeric_std.all;
 entity TopLevel is
     port (
         CLK     : in STD_LOGIC;
-        RESET   : in STD_LOGIC;
-        
-        RESULT  : out STD_LOGIC_VECTOR(31 downto 0)
+        RESET   : in STD_LOGIC
+        -- RESULT  : out STD_LOGIC_VECTOR(31 downto 0)
     );
 end TopLevel;
 
 architecture Structural of TopLevel is
+    signal PC_ADDER_WIRE : STD_LOGIC_VECTOR(31 downto 0);
     signal PROGRAM_COUNTER_OUT_WIRE : STD_LOGIC_VECTOR(31 downto 0);
     
     signal INSTRUCTION_OUT_WIRE : STD_LOGIC_VECTOR(31 downto 0);
     
     signal READ_DATA_1_WIRE : STD_LOGIC_VECTOR(31 downto 0);
     signal READ_DATA_2_WIRE : STD_LOGIC_VECTOR(31 downto 0);
+    
+    signal ALU_SELECT_WIRE : STD_LOGIC_VECTOR(3 downto 0);
+    signal ALU_RESULT_WIRE : STD_LOGIC_VECTOR(31 downto 0);
+    
+    signal REG_WRITE_WIRE : STD_LOGIC;
+    
+    component Controller
+        port (
+            INSTRUCTION : in STD_LOGIC_VECTOR(31 downto 0);
+            
+            REG_WRITE : out STD_LOGIC;
+            
+            ALU_SELECT : out STD_LOGIC_VECTOR(3 downto 0)
+        );
+    end component;
+    
+    component Adder
+        port (
+            INPUT_A : in STD_LOGIC_VECTOR(31 downto 0);
+            INPUT_B : in STD_LOGIC_VECTOR(31 downto 0);
+            
+            OUTPUT : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
     
     component ProgramCounter 
         port (
@@ -68,11 +92,25 @@ architecture Structural of TopLevel is
     end component;
     
 begin
+    CONTROLLER_1 : Controller
+        port map (
+            INSTRUCTION => INSTRUCTION_OUT_WIRE,
+            REG_WRITE => REG_WRITE_WIRE,
+            ALU_SELECT => ALU_SELECT_WIRE
+        );
+    
+    PC_ADDER : Adder
+        port map (
+            INPUT_A => PROGRAM_COUNTER_OUT_WIRE,
+            INPUT_B => STD_LOGIC_VECTOR(to_unsigned(4, 32)), -- add 4 to the existing PC
+            OUTPUT => PC_ADDER_WIRE
+        );
+        
     PROGRAM_COUNTER : ProgramCounter
         port map (
             CLK => CLK,
             RESET => RESET,
-            INPUT => "00000000000000000000000000000000", -- the "+4" thing
+            INPUT => PC_ADDER_WIRE, -- the "+4" thing
             OUTPUT => PROGRAM_COUNTER_OUT_WIRE
         );
         
@@ -94,9 +132,9 @@ begin
             
             WRITE_REGISTER => INSTRUCTION_OUT_WIRE(11 downto 7), -- rd
             
-            WRITE_DATA => "00000000000000000000000000000000",
+            WRITE_DATA => ALU_RESULT_WIRE,
             
-            REG_WRITE => '0'
+            REG_WRITE => REG_WRITE_WIRE
         );
         
     ALU_1 : ALU
@@ -104,8 +142,8 @@ begin
             INPUT_A => READ_DATA_1_WIRE,
             INPUT_B => READ_DATA_2_WIRE,
             
-            INPUT_SELECT => "0000",
+            INPUT_SELECT => ALU_SELECT_WIRE,
             
-            OUTPUT => RESULT
+            OUTPUT => ALU_RESULT_WIRE
         );
 end Structural;

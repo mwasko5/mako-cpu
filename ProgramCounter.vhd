@@ -9,9 +9,9 @@ entity ProgramCounter is
         CLK : in STD_LOGIC;
         RESET : in STD_LOGIC;
         
-        INPUT : in STD_LOGIC_VECTOR(MAX_INSTRUCTIONS downto 0);
+        INPUT : in STD_LOGIC_VECTOR(31 downto 0);
         
-        OUTPUT : out STD_LOGIC_VECTOR(MAX_INSTRUCTIONS downto 0)
+        OUTPUT : out STD_LOGIC_VECTOR(31 downto 0)
     );
 end ProgramCounter;
 
