@@ -5,8 +5,10 @@ use ieee.numeric_std.all;
 entity TopLevel is
     port (
         CLK     : in STD_LOGIC;
-        RESET   : in STD_LOGIC
+        RESET   : in STD_LOGIC;
         -- RESULT  : out STD_LOGIC_VECTOR(31 downto 0)
+        
+        ALU_OUTPUT : out STD_LOGIC_VECTOR(31 downto 0)
     );
 end TopLevel;
 
@@ -22,6 +24,11 @@ architecture Structural of TopLevel is
     signal ALU_SELECT_WIRE : STD_LOGIC_VECTOR(3 downto 0);
     signal ALU_RESULT_WIRE : STD_LOGIC_VECTOR(31 downto 0);
     
+    signal MEM_WRITE_WIRE : STD_LOGIC;
+    signal MEM_READ_WIRE : STD_LOGIC;
+    
+    signal WRITE_DATA_WIRE : STD_LOGIC_VECTOR(31 downto 0);
+    
     signal REG_WRITE_WIRE : STD_LOGIC;
     
     component Controller
@@ -30,7 +37,10 @@ architecture Structural of TopLevel is
             
             REG_WRITE : out STD_LOGIC;
             
-            ALU_SELECT : out STD_LOGIC_VECTOR(3 downto 0)
+            ALU_SELECT : out STD_LOGIC_VECTOR(3 downto 0);
+            
+            MEM_WRITE   : out STD_LOGIC;
+            MEM_READ    : out STD_LOGIC
         );
     end component;
     
@@ -91,12 +101,29 @@ architecture Structural of TopLevel is
         );
     end component;
     
+    component DataMemory
+        port (
+            CLK :in STD_LOGIC;
+        
+            ADDRESS     : in STD_LOGIC_VECTOR(31 downto 0);
+            
+            WRITE_DATA  : in STD_LOGIC_VECTOR(31 downto 0);
+            
+            MEM_WRITE   : in STD_LOGIC;
+            MEM_READ    : in STD_LOGIC;
+            
+            READ_DATA   : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
+    
 begin
     CONTROLLER_1 : Controller
         port map (
             INSTRUCTION => INSTRUCTION_OUT_WIRE,
             REG_WRITE => REG_WRITE_WIRE,
-            ALU_SELECT => ALU_SELECT_WIRE
+            ALU_SELECT => ALU_SELECT_WIRE,
+            MEM_WRITE => MEM_WRITE_WIRE,
+            MEM_READ => MEM_READ_WIRE
         );
     
     PC_ADDER : Adder
@@ -146,4 +173,20 @@ begin
             
             OUTPUT => ALU_RESULT_WIRE
         );
+        
+    DATA_MEMORY : DataMemory
+        port map (
+            CLK => CLK,
+        
+            ADDRESS => ALU_RESULT_WIRE,
+            
+            WRITE_DATA => WRITE_DATA_WIRE,
+            
+            MEM_WRITE => MEM_WRITE_WIRE,
+            MEM_READ => MEM_READ_WIRE,
+            
+            READ_DATA => READ_DATA_1_WIRE -- temporary (can be read_register 1 or 2, can be implemented with mux)
+        );
+        
+        ALU_OUTPUT <= ALU_RESULT_WIRE;
 end Structural;

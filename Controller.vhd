@@ -5,9 +5,12 @@ entity Controller is
     port (
         INSTRUCTION : in STD_LOGIC_VECTOR(31 downto 0);
         
-        REG_WRITE : out STD_LOGIC;
+        REG_WRITE   : out STD_LOGIC;
         
-        ALU_SELECT : out STD_LOGIC_VECTOR(3 downto 0)
+        ALU_SELECT  : out STD_LOGIC_VECTOR(3 downto 0);
+        
+        MEM_WRITE   : out STD_LOGIC;
+        MEM_READ    : out STD_LOGIC
     );
 end Controller;
 
