@@ -1,3 +1,3 @@
 # mako-cpu
 
-RISC-V architecture CPU 
+32-bit RISC-V CPU 
